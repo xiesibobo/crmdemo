@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div>
+        {% for questionnaire in questionnaire_list %}
+            <div>{{ questionnaire.nid }}</div>
+            <div>{{ questionnaire.title }}</div>
+            <div>{{ questionnaire.cls.name }}</div>
+        {% endfor %}
+    </div>
+</body>
+</html>
