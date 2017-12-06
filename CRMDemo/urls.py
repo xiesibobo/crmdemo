@@ -19,6 +19,10 @@ from app01 import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^login/', views.login),
-    url(r'^questionnairemanage/', views.questionnairemanage),
+    url(r'^login/$', views.login),
+    url(r'^test/$', views.test),
+    url(r'^questionnairemanage/$', views.questionnairemanage),
+    url(r'^questionnairemanage/add/$', views.questionnaireadd),
+    url(r'^questionnaire/edit/(?P<clsid>\d+)/(?P<qsnreid>\d+)/$', views.questionnaireedit),
+    url(r'^questionnaire2/edit/(?P<clsid>\d+)/(?P<qsnreid>\d+)/$', views.questionnaireedit2),
 ]

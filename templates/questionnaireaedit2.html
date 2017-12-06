@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑问卷</title>
+    <script src="/static/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <img alt="Brand" src="...">
+            </a>
+        </div>
+    </div>
+</nav>
+<div class="container radio">
+    <div><button class="btn btn-primary  btn-sm" id="addqus">添加问题</button><button class="btn-sm btn btn-info " id="refer">提交</button></div>
+    <form action="/questionnaire/edit/{{ cls }}/{{ qsnreid }}/" method="post" novalidate>
+        {% csrf_token %}
+        <div class="questions">
+
+
+            {% for questions in form %}
+            <div class="panel panel-default qustion_id" qustion_id="{{ questions.obj.id }}">
+                <div class="panel-body">
+                    <div>{{ questions.form.title.label }}{{ questions.form.title }}</div>
+                    <div>{{ questions.form.tp.label }}{{ questions.form.tp }}</div>
+                    <div class="options">
+
+                        <div><input type="button" class="btn btn-primary addopt btn-sm questions.option_class" value="添加选项"></div>
+
+                        {% for option in questions.options %}
+                            <div option_id="{{ option.obj.id }}">{{ option.item.as_p }}</div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </form>
+</div>
+<script>
+    $('#refer').click(function () {
+        var renfer=[];
+        $('.qustion_id').each(function () {
+            var inner=[];
+            $(this).children().children().children().each(function () {
+
+                console.log(this);
+                var kv=[this.name,this.value];
+                if(this.name){
+                  inner.push(kv);
+                }else if ($(this).children().length>1) {
+                    var opt=[];
+                    $(this).children().each(function () {
+                        opt.push(this.value)
+                    });
+                    inner.push(opt)
+                }
+            });
+            renfer.push(inner)
+        });
+        console.log(renfer,typeof (renfer));
+        $.ajax({
+            url:$('form').attr('action'),
+            type:"POST",
+            data:{
+                "csrfmiddlewaretoken":$("[name='csrfmiddlewaretoken']").val(),
+                "renfer":renfer
+            }
+
+        })
+    });
+    $('#addqus').click(function () {
+
+        var ele=$('[qustion_id]').first().clone().removeAttr('qustion_id');
+{#        $(ele).children().each(function () {#}
+{#            console.log(666,this);#}
+{#            $(this).children().each(function () {#}
+{#                console.log(this)#}
+{#            });#}
+{#            this.value('')#}
+{#        });#}
+        $('.questions').append(ele)
+
+
+    });
+    $('.questions').on('click', '.addopt', function () {
+{#        console.log('添加选项', $(this).parent().next().clone());#}
+        //添加
+        $(this).parent().after($(this).parent().next().clone())
+    });
+    $('.questions').on('change', '.types', function () {
+
+        if ($(this).val() != 2) {
+            console.log(666, $(this).parent().next());
+            $(this).parent().next().children().first().addClass('hide');
+            $(this).parent().next().children().last().remove();
+{#            console.log($(this).parent().next());#}
+{#            $(this).parent().next().remove()#}
+
+
+        } else {
+             $(this).parent().next().children().first().removeClass('hide');
+             var ele='<div option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"></div>'
+             $(this).parent().next().append(ele)
+        }
+    })
+
+
+</script>
+</body>
+</html>
+
+

@@ -35,12 +35,12 @@ class Questionnaire(models.Model):
     '''
     nid=models.AutoField(primary_key=True)
     title=models.CharField(max_length=64)
-    cls=models.ForeignKey(to='ClassList')
-    creator=models.ForeignKey(to='UserInfo')
+    cls=models.ForeignKey(to='ClassList',null=True,blank=True)
+    creator=models.ForeignKey(to='UserInfo',null=True,blank=True)
+    create_time=models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
     def __str__(self):
         return self.title
-    def Mate(self):
-        return self.title
+
 
 class Questions(models.Model):
 
@@ -53,6 +53,8 @@ class Questions(models.Model):
     tp=models.IntegerField(choices=question_types)
     def __str__(self):
         return self.title
+
+    naire = models.ForeignKey(Questionnaire, default=1)
 
 
 class Option(models.Model):

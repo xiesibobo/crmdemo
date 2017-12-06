@@ -3,14 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="/static/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <style>
+        body{
+            background-color: #e3e3e3;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        {% for questionnaire in questionnaire_list %}
-            <div>{{ questionnaire.nid }}</div>
-            <div>{{ questionnaire.title }}</div>
-            <div>{{ questionnaire.cls.name }}</div>
-        {% endfor %}
+<div class="container">
+
+    <div class="row">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <img alt="Brand" src="...">
+                    </a>
+                </div>
+            </div>
+        </nav>
     </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="list-group" style="text-align: center">
+                <a href="/questionnairemanage/add">
+                    <li class="list-group-item">添加</li>
+                </a>
+                <a href="#">
+                    <li class="list-group-item">Cras justo odio</li>
+                </a>
+                <a href="#">
+                    <li class="list-group-item">Cras justo odio</li>
+                </a>
+
+            </ul>
+            <div class="list-group">
+                <button type="button" class="list-group-item">Cras justo odio</button>
+                <button type="button" class="list-group-item">Dapibus ac facilisis in</button>
+                <button type="button" class="list-group-item">Morbi leo risus</button>
+                <button type="button" class="list-group-item">Porta ac consectetur ac</button>
+                <button type="button" class="list-group-item">Vestibulum at eros</button>
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-8" style="background-color: #ffffff">
+            <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>编号</th>
+                    <th>调查问卷名称</th>
+                    <th>问卷调查班级</th>
+                    <th>参与人数</th>
+                    <th>问卷选项</th>
+                    <th>查看评分</th>
+                    <th>调查地址</th>
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                    {% for questionnaire in questionnaire_list %}
+                        <tr>
+                        <td>
+                            <option value="{{ questionnaire.nid }}"></option>
+                        </td>
+                        <td>{{ questionnaire.nid }}</td>
+                        <td>{{ questionnaire.title }}</td>
+                        <td>{{ questionnaire.cls.name }}</td>
+                        <td>0</td>
+                        <td><a href="/questionnaire/edit/{{ questionnaire.cls.nid }}/{{ questionnaire.nid }}/">编辑</a></td>
+                        <td><a href="#">查看评分</a></td>
+                        <td><a href="#">/questionnaire/{{ questionnaire.cls.nid }}/{{ questionnaire.nid }}</a></td>
+                        <td><a href="#">删除</a></td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 </body>
 </html>
