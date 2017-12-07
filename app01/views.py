@@ -47,36 +47,44 @@ def questionnaireadd(request):
 def questionnaireedit(request, clsid, qsnreid):
     if request.is_ajax():
         questions = json.loads(request.POST.get('quetions'))
-        print('初始化数据：',questions, type(questions))
-        for question in questions:
-            print('单个数据：',question)
-            qustion_id = question.get('qustion_id')
-            tp_id = question.get('tp')
-            qtitle = question.get('title')
-            print('开始',qustion_id,tp_id,qtitle)
-            if qustion_id:
-                qobj_set = models.Questions.objects.filter(id=qustion_id)
-                qobj_set.update(title=qtitle, tp=tp_id)
-                qobj=qobj_set.first()
-                if int(tp_id) != 2:
-                    models.Option.objects.filter(qs=qobj).delete()
-            else:
-                qobj=models.Questions.objects.create(title=qtitle, tp=tp_id)
-            if int(tp_id) == 2:
-                for option in question.get('options'):
-                    print('option_id:',option.get('option_id'))
-                    if option.get('option_id') == 'new':
-                        print('开始创建')
-                        if option.get('title') and option.get('score'):
-                            print(qobj)
-                            optobj=models.Option.objects.create(title=option['title'], score=int(option['score']),qs=qobj)
-                            optobj.qs=qobj
+        print(questions)
+        with transaction.atomic():
+            for question in questions:
+                # 创建或更新问题
+                qustion_id = question.get('qustion_id')
+                tp_id = question.get('tp')
+                qtitle = question.get('title')
+                qsform = forms.QuestionsForm({'title': qtitle, 'tp': tp_id})
+                if qsform.is_valid():
+                    if qustion_id:
+                        qobj_set = models.Questions.objects.filter(id=qustion_id)
+                        qobj_set.update(title=qtitle, tp=tp_id)
+                        qobj = qobj_set.first()
+                        if int(tp_id) != 2:
+                            models.Option.objects.filter(qs=qobj).delete()
                     else:
-                        optobj = models.Option.objects.filter(id=option.get('option_id'))
-                        if optobj and option.get('title') and option.get('score'):
-                            optobj.update(title=option['title'], score=int(option['score']))
+                        qobj = models.Questions.objects.create(title=qtitle, tp=tp_id)
+                    if int(tp_id) == 2 and question.get('options'):
+                        bein = []
+                        for option in question.get('options'):
+                            # 创建或更新选项
+                            if option.get('option_id') == 'new':
 
-        return HttpResponse('Ok')
+                                if option.get('title') and option.get('score'):
+                                    optobj = models.Option.objects.create(title=option['title'], score=int(option['score']),
+                                                                          qs=qobj)
+                                    bein.append(optobj.id)
+                            else:
+                                option_id = option.get('option_id')
+                                bein.append(int(option_id))
+                                optobj = models.Option.objects.filter(id=option_id)
+                                if optobj and option.get('title') and option.get('score'):
+                                    optobj.update(title=option['title'], score=int(option['score']))
+                        models.Option.objects.exclude(id__in=bein).delete()
+                        # 删除已经不属于该问题的选项
+            else:
+                return HttpResponse(json.dumps({'flag': True, 'msg': '成功'}))
+        return HttpResponse(json.dumps({'flag': False, 'msg': '请检查'}))
 
     def get_question():
         questions_list = models.Questions.objects.filter(naire_id=qsnreid)
@@ -87,6 +95,7 @@ def questionnaireedit(request, clsid, qsnreid):
         else:
             for question in questions_list:
                 s = {'form': None, 'obj': None, 'option_class': 'hide', 'options': None}
+
                 def get_options():
                     option_list = models.Option.objects.filter(qs=question)
                     for option in option_list:

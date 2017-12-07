@@ -6,6 +6,28 @@
     <script src="/static/jquery-3.2.1.min.js"></script>
     <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <style>
+         ol{
+            padding:0;
+            list-style: none;
+            counter-reset: sectioncounter;
+        }
+        ol > li:before{
+            content: "问题" counter(sectioncounter)':';
+            counter-increment: sectioncounter;
+            font-size: 18px;
+            color: #d4d4d4;
+        }
+        ol > li:nth-of-type(odd){
+            background-color: #f9f9f9;
+        }
+        .btn{
+            display: inline-block;
+            vertical-align: bottom;
+{#            height: 30px;#}
+            width: 70px;
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -27,11 +49,12 @@
             {% for questions in result %}
 
             <li qustion_id="{{ questions.obj.id }}"  class="list-group-item">
+                <span class="btn glyphicon glyphicon-remove item-remove pull-right"></span>
                 <ul>
                     <li>{{ questions.form.title.label }}{{ questions.form.title }}</li>
-                    <li>{{ questions.form.tp.label }}{{ questions.form.tp }}<span class="btn btn-info addopt btn-xs {{ questions.option_class }}">添加选项</span></li>
+                    <li>{{ questions.form.tp.label }}{{ questions.form.tp }}<span class="btn btn-info glyphicon glyphicon-plus addopt btn-xs {{ questions.option_class }}">添加选项</span></li>
                     {% for option in questions.options %}
-                        <li option_id="{{ option.obj.id }}">{{ option.item.title }}{{ option.item.score }}</li>
+                        <li option_id="{{ option.obj.id }}">{{ option.item.title }}{{ option.item.score }}<span class="btn glyphicon glyphicon-remove item-remove"></span></li>
                     {% endfor %}
                 </ul>
             </li>
@@ -81,6 +104,13 @@
             data:{
                 "csrfmiddlewaretoken":$("[name='csrfmiddlewaretoken']").val(),
                 'quetions':JSON.stringify(renfer)
+            },
+            success:function (data) {
+                var data =JSON.parse(data);
+                alert(data.msg);
+                if (data['flag']){
+                    location.href='/questionnairemanage/'
+                }
             }
         })
 
@@ -103,7 +133,7 @@
     });
     $('.questions').on('click', '.addopt', function () {
         //添加选项
-        var ele='<li option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"></li>';
+        var ele='<li option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"><span class="btn glyphicon glyphicon-remove"></span></li>';
         $(this).parent().parent().append(ele)
     });
     $('.questions').on('change', '[name="tp"]', function () {
@@ -113,9 +143,12 @@
             $(this).parent().nextAll().remove();
         } else {
              $(this).next().removeClass('hide');
-             var ele='<li option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"></li>';
+             var ele='<li option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"><span class="btn glyphicon glyphicon-remove"></span></li>';
              $(this).parent().parent().append(ele)
         }
+    });
+    $('.questions').on('click','.item-remove',function () {
+        $(this).parent().remove()
     })
 
 

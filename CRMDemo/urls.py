@@ -16,11 +16,13 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from app01 import views
+from app02 import views as view2
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^login/$', views.login),
     url(r'^test/$', views.test),
+    url(r'^subscrib/$', view2.subscrib),
     url(r'^questionnairemanage/$', views.questionnairemanage),
     url(r'^questionnairemanage/add/$', views.questionnaireadd),
     url(r'^questionnaire/edit/(?P<clsid>\d+)/(?P<qsnreid>\d+)/$', views.questionnaireedit),
