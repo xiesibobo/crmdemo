@@ -21,95 +21,100 @@
     <div><button class="btn btn-primary  btn-sm" id="addqus">添加问题</button><button class="btn-sm btn btn-info " id="refer">提交</button></div>
     <form action="/questionnaire/edit/{{ cls }}/{{ qsnreid }}/" method="post" novalidate>
         {% csrf_token %}
-        <div class="questions">
+        <ol class="list-group questions">
 
 
             {% for questions in result %}
-            <div class="panel panel-default qustion_id" qustion_id="{{ questions.obj.id }}">
-                <div class="panel-body">
-                    <div>{{ questions.form.title.label }}{{ questions.form.title }}</div>
-                    <div>{{ questions.form.tp.label }}{{ questions.form.tp }}</div>
-                    <div class="options">
 
-                        <div><input type="button" class="btn btn-primary addopt btn-sm questions.option_class" value="添加选项"></div>
-
-                        {% for option in questions.options %}
-                            <div option_id="{{ option.obj.id }}">{{ option.item.title }}{{ option.item.score }}</div>
-                        {% endfor %}
-
-                    </div>
-                </div>
-            </div>
+            <li qustion_id="{{ questions.obj.id }}"  class="list-group-item">
+                <ul>
+                    <li>{{ questions.form.title.label }}{{ questions.form.title }}</li>
+                    <li>{{ questions.form.tp.label }}{{ questions.form.tp }}<span class="btn btn-info addopt btn-xs {{ questions.option_class }}">添加选项</span></li>
+                    {% for option in questions.options %}
+                        <li option_id="{{ option.obj.id }}">{{ option.item.title }}{{ option.item.score }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
             {% endfor %}
 
-        </div>
+        </ol>
     </form>
 </div>
 <script>
     $('#refer').click(function () {
         var renfer=[];
-        $('.qustion_id').each(function () {
-            var inner=[];
-            $(this).children().children().children().each(function () {
-
+        $('ol > li').each(function () {
+            var inner={'qustion_id':$(this).attr('qustion_id'),'options':[]};
+            var count=0;
+            $(this).children().children().each(function () {
                 console.log(this);
-                var kv=[this.name,this.value];
-                if(this.name){
-                  inner.push(kv);
-                }else if ($(this).children().length>1) {
-                    var opt=[];
-                    $(this).children().each(function () {
-                        opt.push(this.value)
+                if (count ===0){
+                    inner.title=$(this).children('input').val();
+
+                }else if (count ===1){
+                    inner.tp=$(this).children().children(':selected').val();
+                    console.log(inner.tp=$(this).children().children(':selected').val())
+                }else {
+                    opitem={'option_id':$(this).attr('option_id')};
+                    $(this).children('input').each(function () {
+                        if ($(this).attr('name')=='title'){
+                            opitem.title=$(this).val()
+                        }else {
+                            opitem.score=$(this).val()
+                        }
                     });
-                    inner.push(opt)
+                    inner.options.push(opitem)
                 }
+                count++;
             });
-            renfer.push(inner)
+            renfer.push(inner);
+
+
         });
-        console.log(renfer,typeof (renfer));
+         console.log(renfer);
+
+
         $.ajax({
             url:$('form').attr('action'),
             type:"POST",
+{#            headers:{"X-CSRFToken":$.cookie('csrftoken')},#}
             data:{
                 "csrfmiddlewaretoken":$("[name='csrfmiddlewaretoken']").val(),
-                "renfer":renfer
+                'quetions':JSON.stringify(renfer)
             }
-
         })
+
     });
     $('#addqus').click(function () {
+            //添加问题
+        var ele=$('ol > li:first').clone().removeAttr('qustion_id');
+        $('ol').append(ele);
+        var s=0;
+        $(ele).children().children().each(function () {
 
-        var ele=$('[qustion_id]').first().clone().removeAttr('qustion_id');
-{#        $(ele).children().each(function () {#}
-{#            console.log(666,this);#}
-{#            $(this).children().each(function () {#}
-{#                console.log(this)#}
-{#            });#}
-{#            this.value('')#}
-{#        });#}
-        $('.questions').append(ele)
-
+            if (s<2){
+                $(this).children('input').val('')
+            }else {
+                $(this).remove()
+            }
+            s++;
+        });
 
     });
     $('.questions').on('click', '.addopt', function () {
-{#        console.log('添加选项', $(this).parent().next().clone());#}
-        //添加
-        $(this).parent().after($(this).parent().next().clone())
+        //添加选项
+        var ele='<li option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"></li>';
+        $(this).parent().parent().append(ele)
     });
-    $('.questions').on('change', '.types', function () {
-
+    $('.questions').on('change', '[name="tp"]', function () {
+        //更改类型
         if ($(this).val() != 2) {
-            console.log(666, $(this).parent().next());
-            $(this).parent().next().children().first().addClass('hide');
-            $(this).parent().next().children().last().remove();
-{#            console.log($(this).parent().next());#}
-{#            $(this).parent().next().remove()#}
-
-
+            $(this).next().addClass('hide');
+            $(this).parent().nextAll().remove();
         } else {
-             $(this).parent().next().children().first().removeClass('hide');
-             var ele='<div option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"></div>'
-             $(this).parent().next().append(ele)
+             $(this).next().removeClass('hide');
+             var ele='<li option_id="new"><input type="text" name="title" value="" placeholder="标题" class="form-inline" maxlength="64" required="" id="id_title"><input type="number" name="score" value="" required="" id="id_score"></li>';
+             $(this).parent().parent().append(ele)
         }
     })
 

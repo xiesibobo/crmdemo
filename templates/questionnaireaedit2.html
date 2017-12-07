@@ -67,14 +67,15 @@
             renfer.push(inner)
         });
         console.log(renfer,typeof (renfer));
+        var calldata={
+                "csrfmiddlewaretoken":$("[name='csrfmiddlewaretoken']").val(),
+                "renfer":renfer
+            };
+
         $.ajax({
             url:$('form').attr('action'),
             type:"POST",
-            data:{
-                "csrfmiddlewaretoken":$("[name='csrfmiddlewaretoken']").val(),
-                "renfer":renfer
-            }
-
+            data:JSON.stringify(calldata)
         })
     });
     $('#addqus').click(function () {
