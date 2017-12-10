@@ -25,6 +25,7 @@ class Student(models.Model):
     '''
     nid=models.AutoField(primary_key=True)
     name=models.CharField(max_length=16)
+    pwd = models.CharField(max_length=32)
     cls=models.ForeignKey(to='ClassList')
     def __str__(self):
         return self.name

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <style>
-        tbody > tr{
+        tbody > tr {
             height: 60px;
             text-align: center;
         }
@@ -31,36 +31,59 @@
     </div>
     <div class="row">
         <div class="panel panel-default">
-            <div class="panel-heading">欢迎预定会议室</div>
+            <div class="panel-heading">
+                <span>欢迎预定会议室</span>
+                <span class="pull-right">
+                    <form action="/subscrib/">
+                        <input type="date" name="appointment_day" value='{{ appointment_day }}'/>
+                        <input type="submit" value="查看">
+                    </form>
+                </span>
+
+            </div>
             <div class="panel-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target=".bs-example-modal-sm">
+                        会议室预定
+                    </button>
+                </div>
+
+
+                <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog"
+                     aria-labelledby="mySmallModalLabel">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <form action="/subscrib/" method="post">
+                                {% csrf_token %}
+                                <div>{{ form.day.label }}{{ form.day }}</div>
+                                <div>{{ form.room.label }}{{ form.room }}</div>
+                                <div>{{ form.slot.label }}{{ form.slot }}</div>
+                                <div><input type="submit" value="预约"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <table class="table table-bordered">
                     <thead>
                     <tr>
                         <th>会议室</th>
-                        <th>8:00</th>
-                        <th>9:00</th>
-                        <th>Username</th>
+                        {% for foo in time_list %}
+                            <th>{{ foo.starttime }}-{{ foo.endtime }}</th>
+                        {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Larry</td>
-                        <td>the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
+                    {% for oneitem in waper_list %}
+                        <tr>
+                            <th>{{ oneitem.room.title }}</th>
+                            {% for select in oneitem.inner_list %}
+                                <td>{{ select.0.user.username }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+
+
                     </tbody>
                 </table>
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>回答</title>
+</head>
+<body>
+<div>
+
+    <form action="" method="post" novalidate>
+        {% csrf_token %}
+        {% for foo in form %}
+            <div>{{ foo.label }}{{ foo.errors.0 }}</div>
+            <div>{{ foo }}</div>
+        {% endfor %}
+
+        <input type="submit" value="提交">
+    </form>
+
+</div>
+</body>
+</html>

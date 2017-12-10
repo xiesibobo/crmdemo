@@ -18,6 +18,10 @@ class Slot(models.Model):
     starttime = models.TimeField()
     endtime = models.TimeField()
 
+    @property
+    def title(self):
+        return str(self.starttime) + '+' + str(self.endtime)
+
 
     def __str__(self):
         return str(self.starttime) +'+'+ str(self.endtime)
