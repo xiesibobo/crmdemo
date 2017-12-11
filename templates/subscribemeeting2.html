@@ -1,0 +1,229 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>会议室预定</title>
+    <script src="{% static '/jquery-3.2.1.min.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static '/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+    <script src="{% static '/bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static '/datetimepicker/bootstrap-datetimepicker.min.css' %}">
+    <script src="{% static '/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static '/datetimepicker/bootstrap-datetimepicker.zh-CN.js' %}"></script>
+
+    <style>
+        tbody > tr {
+            height: 60px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <img alt="Brand"
+                             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAB+0lEQVR4AcyYg5LkUBhG+1X2PdZGaW3btm3btm3bHttWrPomd1r/2Jn/VJ02TpxcH4CQ/dsuazWgzbIdrm9dZVd4pBz4zx2igTaFHrhvjneVXNHCSqIlFEjiwMyyyOBilRgGSqLNF1jnwNQdIvAt48C3IlBmHCiLQHC2zoHDu6zG1iXn6+y62ScxY9AODO6w0pvAqf23oSE4joOfH6OxfMoRnoGUm+de8wykbFt6wZtA07QwtNOqKh3ZbS3Wzz2F+1c/QJY0UCJ/J3kXWJfv7VhxCRRV1jGw7XI+gcO7rEFFRvdYxydwcPsVsC0bQdKScngt4iUTD4Fy/8p7PoHzRu1DclwmgmiqgUXjD3oTKHbAt869qdJ7l98jNTEblPTkXMwetpvnftA0LLHb4X8kiY9Kx6Q+W7wJtG0HR7fdrtYz+x7iya0vkEtUULIzCjC21wY+W/GYXusRH5kGytWTLxgEEhePPwhKYb7EK3BQuxWwTBuUkd3X8goUn6fMHLyTT+DCsQdAEXNzSMeVPAJHdF2DmH8poCREp3uwm7HsGq9J9q69iuunX6EgrwQVObjpBt8z6rdPfvE8kiiyhsvHnomrQx6BxYUyYiNS8f75H1w4/ISepDZLoDhNJ9cdNUquhRsv+6EP9oNH7Iff2A9g8h8CLt1gH0Qf9NMQAFnO60BJFQe0AAAAAElFTkSuQmCC"
+                             width="20" height="20">
+                    </a>
+                    <p class="navbar-text">会议室预定</p>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span>欢迎预定会议室</span>
+                <span class="pull-right input-group" style="width: 230px">
+
+                    <input type="text" id="datetimepicker11" placeholder="请选择日期" class="form-control">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+
+{#                    <input type="date" name="appointment_day"  value='{{ appointment_day }}'/>#}
+
+
+{#                    <button class="btn btn-sm " id="look">查看</button>#}
+                </span>
+
+            </div>
+            <div class="panel-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target=".bs-example-modal-sm">
+                        会议室预定
+                    </button>
+                </div>
+
+
+                <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog"
+                     aria-labelledby="mySmallModalLabel">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">请选择预约信息</div>
+                            <div class="modal-body">
+                                <form action="/subscrib/" method="post" class="form-horizontal">
+                                    {% csrf_token %}
+                                    <div>{{ form.day.label }}{{ form.day }}</div>
+                                    <div>{{ form.room.label }}{{ form.room }}</div>
+                                    <div>{{ form.slot.label }}{{ form.slot }}</div>
+                                    <div><input type="submit" value="预约" class="btn btn-sm center-block"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th>会议室</th>
+                        {% for foo in time_list %}
+                            <th>{{ foo.title }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody class="infolist" id="tBody">
+
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    // 对Date的扩展，将 Date 转化为指定格式的String
+    // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
+    // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+    // 例子：
+    // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+    // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
+    Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    };
+</script>
+<script>
+    function initDatepicker() {
+        $('#datetimepicker11').datetimepicker({
+            minView: "month",
+            language: "zh-CN",
+            sideBySide: true,
+            format: 'yyyy-mm-dd',
+            bootcssVer: 3,
+            startDate: new Date(),
+            autoclose: true
+        }).on('changeDate', changeDate);
+    }
+       function changeDate(ev) {
+        CHOSEN_DATE = ev.date.Format('yyyy-MM-dd');
+        getmeeting(CHOSEN_DATE);
+
+    }
+
+    $('#look').click(function () {
+        console.log(666);
+        var date = $('input[name="appointment_day"]').val();
+        console.log(date);
+
+        getmeeting(date);
+    })
+
+</script>
+<script>
+    $(function () {
+
+        getmeeting();
+        initDatepicker();
+
+    });
+
+    function getmeeting(date) {
+        //生成会议室记录
+        if (!date) {
+            date = new Date().Format('yyyy-MM-dd');
+        }
+        $.ajax({
+            url: '/getmeeting/',
+            type: 'GET',
+            data: {'appointment_day': date},
+            dataType: 'JSON',
+            success: function (data) {
+
+                $('#tBody').html("").attr('date', date);
+                $.each(data, function (k, v) {
+                    {#                    console.log(k, v);#}
+
+                    $.each(v, function (l, s) {
+
+                        var tr = document.createElement('tr');
+                        var td = document.createElement('td');
+                        $(td).attr('room_id', s.room_id).text(s.title);
+                        $(tr).append(td);
+                        {#                        console.log('ls', l, s);#}
+                        $.each(s.inner_list, function (i, j) {
+                            {#                            console.log('i,j', i, j);#}
+                            var td = document.createElement('td');
+                            $(td).attr({'cid': j.id, 'class': j.class, 'room_id': s.room_id, 'slot': j.slot});
+                            {#                            $(td).attr();#}
+                            $(td).text(j.user__username);
+                            $(tr).append(td)
+                        });
+                        $('#tBody').append(tr)
+                    })
+                })
+            }
+        })
+    }
+    select_room={'del':[],'add':[]};
+    $('table').on('click', 'td', function () {
+        console.log($(this).attr('cid'));
+        if (!$(this).attr('cid') && $(this).attr('slot')) {
+            dic = {'date': $('#tBody').attr('date'), 'room_id': $(this).attr('room_id'), 'slot': $(this).attr('slot')};
+{#            console.log(dic);#}
+            $.ajax({
+                url: '/subscrib2/',
+                type: 'POST',
+                data: {data: JSON.stringify(dic), "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val()},
+                dataType: 'JSON',
+                success: function (data) {
+{#                    console.log(data, typeof (data));#}
+                    if (data['flag']) {
+
+                        getmeeting($('#tBody').attr('date'))
+                    }
+                    alert(data['msg']);
+                }
+
+
+            })
+        }else if ($(this).attr('cid') ){
+            alert('已被预约')
+        }
+
+
+    })
+
+</script>
+
+</body>
+</html>

@@ -20,11 +20,11 @@ class Slot(models.Model):
 
     @property
     def title(self):
-        return str(self.starttime) + '+' + str(self.endtime)
+        return str(self.starttime)[:5] + '-' + str(self.endtime)[:5]
 
 
     def __str__(self):
-        return str(self.starttime) +'+'+ str(self.endtime)
+        return str(self.starttime) +'-'+ str(self.endtime)
 
 class Record(models.Model):
     boardroom = models.ForeignKey(to='Boardroom')

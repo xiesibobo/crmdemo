@@ -25,6 +25,8 @@ urlpatterns = [
     url(r'^fotest/$', view2.fotest),
     url(r'^student_login/$', views.student_login),
     url(r'^subscrib/$', view2.subscrib),
+    url(r'^getmeeting/$', view2.getmeeting),
+    url(r'^subscrib2/$', view2.subscrib2),
     url(r'^answering/(?P<clsid>\d+)/(?P<qsnreid>\d+)/$', views.answering),
     url(r'^questionnairemanage/$', views.questionnairemanage),
     url(r'^questionnairemanage/add/$', views.questionnaireadd),

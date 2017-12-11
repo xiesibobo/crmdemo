@@ -11,13 +11,15 @@ class Appointment(Form):
         label='请选择预定日期',
         required=True,
         error_messages={'required': '请选择日期'},
-        widget=widgets.SelectDateWidget()
+        widget=widgets.SelectDateWidget(attrs={'class':'form-inline'})
     )
     room=fields.ChoiceField(
-        widget=widgets.Select(attrs={}),
+        label='请选择房间',
+        widget=widgets.Select(attrs={'class':'form-control'}),
         choices=models.Boardroom.objects.all().values_list('rid','title')
     )
     slot=fields.ChoiceField(
-        widget=widgets.Select(),
+        label='请选择时间段',
+        widget=widgets.Select(attrs={'class':'form-control'}),
         # choices=models.Slot.objects.all().values_list('id','starttime')
     )

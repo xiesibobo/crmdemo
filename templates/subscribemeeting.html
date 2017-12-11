@@ -36,7 +36,7 @@
                 <span class="pull-right">
                     <form action="/subscrib/">
                         <input type="date" name="appointment_day" value='{{ appointment_day }}'/>
-                        <input type="submit" value="查看">
+                        <input type="submit" value="查看" class="btn btn-sm">
                     </form>
                 </span>
 
@@ -54,22 +54,25 @@
                      aria-labelledby="mySmallModalLabel">
                     <div class="modal-dialog modal-sm" role="document">
                         <div class="modal-content">
-                            <form action="/subscrib/" method="post">
+                            <div class="modal-header">请选择预约信息</div>
+                            <div class="modal-body">
+                                <form action="/subscrib/" method="post" class="form-horizontal">
                                 {% csrf_token %}
                                 <div>{{ form.day.label }}{{ form.day }}</div>
                                 <div>{{ form.room.label }}{{ form.room }}</div>
                                 <div>{{ form.slot.label }}{{ form.slot }}</div>
-                                <div><input type="submit" value="预约"></div>
+                                <div><input type="submit" value="预约" class="btn btn-sm center-block"></div>
                             </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <table class="table table-bordered">
+                <table class="table table-bordered table-hover">
                     <thead>
                     <tr>
                         <th>会议室</th>
                         {% for foo in time_list %}
-                            <th>{{ foo.starttime }}-{{ foo.endtime }}</th>
+                            <th>{{ foo.title }}</th>
                         {% endfor %}
                     </tr>
                     </thead>
@@ -78,7 +81,13 @@
                         <tr>
                             <th>{{ oneitem.room.title }}</th>
                             {% for select in oneitem.inner_list %}
-                                <td>{{ select.0.user.username }}</td>
+                                {% if select.0.user.username %}
+                                    <td class="info">{{ select.0.user.username }}</td>
+                                    {% else %}
+                                    <td></td>
+                                {% endif %}
+
+
                             {% endfor %}
                         </tr>
                     {% endfor %}
