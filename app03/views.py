@@ -54,19 +54,35 @@ def subscrib2(request):
     if not user_id:
         return HttpResponse('滚')
     if request.is_ajax():
-        ret={'flag':False,'msg':None}
+        ret={'addflag':False,'addmsg':None,'delflag':False,'delmsg':None}
         dic=json.loads(request.POST.get('data'))
         # appointment_days = '{0}-{1}-{2}'.format(*[request.POST.get(i) for i in ['day_year','day_month','day_day']])
-        appointment_days=dic.get('date')
-        slot=dic.get('slot')
-        room=dic.get('room_id')
+        print('dic',dic['add'])
+        print('dic',type(dic['add']))
+        create_list=[]
+        for add_x,additem_item in dic['add'].items():
+            print(add_x,additem_item)
+            # additem_item=json.loads(additem_item)
 
-        obj=models.Record.objects.create(day=appointment_days,boardroom_id=room,slot_id=slot,user_id=user_id)
-        if obj:
-            ret['flag']=True
-            ret['msg']='预约成功'
+            appointment_days=additem_item.get('date')
+            slot=additem_item.get('slot')
+            room=additem_item.get('room_id')
+            obj=models.Record(day=appointment_days,boardroom_id=room,slot_id=slot,user_id=user_id)
+            create_list.append(obj)
+        add_flag=models.Record.objects.bulk_create(create_list)
+            # obj=models.Record.objects.create(day=appointment_days,boardroom_id=room,slot_id=slot,user_id=user_id)
+        del_flag=models.Record.objects.filter(id__in=dic['del']).delete()
+        if add_flag:
+            ret['addflag']=True
+            ret['addmsg']='预约成功'
         else:
-            ret['msg'] ='该时间段内房间已被预订，请核实'
+            ret['addmsg'] ='该时间段内房间已被预或未选择'
+
+        if del_flag:
+            ret['delflag'] = True
+            ret['delmsg'] = '取消成功'
+        else:
+            ret['delmsg'] = '取消失败'
         return JsonResponse(ret)
     time_list=models.Slot.objects.all()
     form = forms.Appointment()
@@ -99,6 +115,7 @@ def getmeeting(request):
             if record_obj:
                 record_obj=record_obj[0]
                 record_obj['class']='active'
+                record_obj['user_id']=request.user.id
             else:record_obj={}
             record_obj['slot']= item.id
             inner_list.append(record_obj)

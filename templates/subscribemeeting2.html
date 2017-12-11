@@ -31,6 +31,9 @@
                              width="20" height="20">
                     </a>
                     <p class="navbar-text">会议室预定</p>
+                    <p user="{{ request.user.id }}" id="user" class="navbar-text pull-right">登录用户：{{ request.user.username }}</p>
+
+
                 </div>
             </div>
         </nav>
@@ -93,7 +96,7 @@
 
                     </tbody>
                 </table>
-
+                <div><button class="btn btn-info" id="handle_submit">提交</button></div>
             </div>
         </div>
 
@@ -183,7 +186,7 @@
                         $.each(s.inner_list, function (i, j) {
                             {#                            console.log('i,j', i, j);#}
                             var td = document.createElement('td');
-                            $(td).attr({'cid': j.id, 'class': j.class, 'room_id': s.room_id, 'slot': j.slot});
+                            $(td).attr({'cid': j.id, 'class': j.class, 'room_id': s.room_id, 'slot': j.slot,'user_id':j.user_id});
                             {#                            $(td).attr();#}
                             $(td).text(j.user__username);
                             $(tr).append(td)
@@ -194,33 +197,56 @@
             }
         })
     }
-    select_room={'del':[],'add':[]};
+    select_room={'del':[],'add':{}};
+    //选取操作的元素，预约和取消预约
     $('table').on('click', 'td', function () {
         console.log($(this).attr('cid'));
         if (!$(this).attr('cid') && $(this).attr('slot')) {
-            dic = {'date': $('#tBody').attr('date'), 'room_id': $(this).attr('room_id'), 'slot': $(this).attr('slot')};
-{#            console.log(dic);#}
+            if ($(this).hasClass('success')){
+                $(this).removeClass('success');
+                delete select_room['add'][ $(this).attr('room_id')+$(this).attr('slot')];
+            }else{
+
+
+
+                dic = {'date': $('#tBody').attr('date'), 'room_id': $(this).attr('room_id'), 'slot': $(this).attr('slot')};
+                console.log('想要预约',dic);
+                $(this).addClass('success');
+                select_room['add'][ $(this).attr('room_id')+$(this).attr('slot')]=dic;
+            }
+
+        }else if ($(this).attr('cid') ){
+
+            if ($('#user').attr('user')==$(this).attr('user_id')){
+                select_room['del'].push($(this).attr('cid'));
+            }else {
+                alert('已被预约');
+            }
+        }
+
+
+    });
+    $('#handle_submit').click(function () {
+        if (select_room['del'] || select_room['add']){
             $.ajax({
                 url: '/subscrib2/',
                 type: 'POST',
-                data: {data: JSON.stringify(dic), "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val()},
+                data: {data: JSON.stringify(select_room), "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val()},
                 dataType: 'JSON',
                 success: function (data) {
 {#                    console.log(data, typeof (data));#}
-                    if (data['flag']) {
+                    getmeeting($('#tBody').attr('date'))
+                    alert(data['addmsg']+','+data['delmsg']);
 
-                        getmeeting($('#tBody').attr('date'))
-                    }
-                    alert(data['msg']);
                 }
 
 
             })
-        }else if ($(this).attr('cid') ){
-            alert('已被预约')
-        }
+        }else {
+            alert('请检查')
+        };
 
-
+        select_room={'del':[],'add':{}};
     })
 
 </script>
