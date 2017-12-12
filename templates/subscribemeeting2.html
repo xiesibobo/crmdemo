@@ -13,7 +13,7 @@
     <script src="{% static '/datetimepicker/bootstrap-datetimepicker.zh-CN.js' %}"></script>
 
     <style>
-        tbody > tr {
+        .infolist > tr {
             height: 60px;
             text-align: center;
         }
@@ -136,10 +136,13 @@
             startDate: new Date(),
             autoclose: true
         }).on('changeDate', changeDate);
+
     }
        function changeDate(ev) {
         CHOSEN_DATE = ev.date.Format('yyyy-MM-dd');
+        submit_sh(CHOSEN_DATE);
         getmeeting(CHOSEN_DATE);
+
 
     }
 
@@ -206,9 +209,6 @@
                 $(this).removeClass('success');
                 delete select_room['add'][ $(this).attr('room_id')+$(this).attr('slot')];
             }else{
-
-
-
                 dic = {'date': $('#tBody').attr('date'), 'room_id': $(this).attr('room_id'), 'slot': $(this).attr('slot')};
                 console.log('想要预约',dic);
                 $(this).addClass('success');
@@ -217,8 +217,28 @@
 
         }else if ($(this).attr('cid') ){
 
-            if ($('#user').attr('user')==$(this).attr('user_id')){
-                select_room['del'].push($(this).attr('cid'));
+            if ($('#user').attr('user')==$(this).attr('user_id')  ){
+                //删除的指定，包含数组和对象的添加删除
+                if($(this).hasClass('danger')){
+                    $(this).toggleClass('danger').toggleClass('active');
+                    var arr=$(this).attr('cid');
+                    function get_index(arr) {
+                        for (var i=0; i<select_room['del'].length; i++){
+                            if (select_room['del'][i]==arr){
+                                return i
+                            }
+                        }
+                    }
+                    console.log(select_room['del']);
+                    select_room['del']=$.grep(select_room['del'],function (n,i) {
+                        return i!=get_index(arr)
+                    });
+                    console.log(select_room['del']);
+                }else {
+                    $(this).toggleClass('active').toggleClass('danger');
+                    select_room['del'].push($(this).attr('cid'));
+                }
+
             }else {
                 alert('已被预约');
             }
@@ -226,7 +246,7 @@
 
 
     });
-    $('#handle_submit').click(function () {
+    function submit_sh(CHOSEN_DATE) {
         if (select_room['del'] || select_room['add']){
             $.ajax({
                 url: '/subscrib2/',
@@ -235,7 +255,12 @@
                 dataType: 'JSON',
                 success: function (data) {
 {#                    console.log(data, typeof (data));#}
-                    getmeeting($('#tBody').attr('date'))
+                    if (CHOSEN_DATE){
+                        getmeeting(CHOSEN_DATE);
+                    }else {
+                        getmeeting($('#tBody').attr('date'));
+                    }
+
                     alert(data['addmsg']+','+data['delmsg']);
 
                 }
@@ -247,7 +272,8 @@
         };
 
         select_room={'del':[],'add':{}};
-    })
+    }
+    $('#handle_submit').click(submit_sh)
 
 </script>
 

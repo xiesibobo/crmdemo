@@ -56,14 +56,8 @@ def subscrib2(request):
     if request.is_ajax():
         ret={'addflag':False,'addmsg':None,'delflag':False,'delmsg':None}
         dic=json.loads(request.POST.get('data'))
-        # appointment_days = '{0}-{1}-{2}'.format(*[request.POST.get(i) for i in ['day_year','day_month','day_day']])
-        print('dic',dic['add'])
-        print('dic',type(dic['add']))
         create_list=[]
-        for add_x,additem_item in dic['add'].items():
-            print(add_x,additem_item)
-            # additem_item=json.loads(additem_item)
-
+        for _,additem_item in dic['add'].items():
             appointment_days=additem_item.get('date')
             slot=additem_item.get('slot')
             room=additem_item.get('room_id')
@@ -71,18 +65,22 @@ def subscrib2(request):
             create_list.append(obj)
         add_flag=models.Record.objects.bulk_create(create_list)
             # obj=models.Record.objects.create(day=appointment_days,boardroom_id=room,slot_id=slot,user_id=user_id)
-        del_flag=models.Record.objects.filter(id__in=dic['del']).delete()
+        if dic['del']:
+            models.Record.objects.filter(id__in=dic['del'],user_id=request.user.id).delete()
+            ret['delflag'] = True
+            ret['delmsg'] = '取消成功'
+        else:
+            ret['delmsg'] = '未选择取消预约'
         if add_flag:
             ret['addflag']=True
             ret['addmsg']='预约成功'
         else:
             ret['addmsg'] ='该时间段内房间已被预或未选择'
 
-        if del_flag:
-            ret['delflag'] = True
-            ret['delmsg'] = '取消成功'
-        else:
-            ret['delmsg'] = '取消失败'
+        # if del_flag:
+        #     ret['delflag'] = True
+        #     ret['delmsg'] = '取消成功'
+
         return JsonResponse(ret)
     time_list=models.Slot.objects.all()
     form = forms.Appointment()
